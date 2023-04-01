@@ -26,22 +26,13 @@
 
   ```rust
   // sync/lock_api.rs
-  #[actandy(thread, spin, future = "async")]
+  #[actandy_macro::actandy(thread, spin, future = "async")]
   pub unsafe trait RawMutex {
       async fn actandy_lock(&self);
       fn try_lock(&self) -> bool;
       unsafe fn unlock(&self);
       fn is_locked(&self) -> bool;
   }
-  
-  // fs/block_cache.rs
-  #[actandy]
-  pub async fn actandy_read<T, V>(
-      &self,
-      block_id: u32,
-      offset: usize,
-      f: impl FnOnce(&T) -> V,
-  )
   
   // drivers/nvme/nvme.rs
   #[actandy_macro::actandy]
@@ -64,7 +55,7 @@
       // ...
   }
   ```
-
+  
 * 支持 actadny: 锁 / 信号量 / xv6-fs / virtio-blk / nvme-driver
 
 * 其他： io_uring, parking lot lock, 可抢占协程
@@ -73,8 +64,22 @@
 
 ### pmu 与测试
 
-* sbi 规范中已经支持 riscv pmu
+* riscv 规范与 sbi 规范中已经支持 riscv pmu
+  
   * `mhpmeventX`  `hpcounterX`
+  
+  * ```rust
+    pub static MHP_ENTRYS: [MHPEvnetX; ENTRY_NUM] = [
+        MHPEvnetX::EVENT_EXCEPTION,
+        MHPEvnetX::EVENT_ATOMIC_OP,
+        MHPEvnetX::EVENT_JUMP_OP,
+        MHPEvnetX::EVENT_CACHE_BUSY,
+        MHPEvnetX::EVENT_BRANCH_MISS,
+        MHPEvnetX::EVENT_CACHE_MISS,
+        MHPEvnetX::EVENT_CACHE_WB,
+        MHPEvnetX::EVENT_TLB_MISS,
+    ];
+    ```
 * 采样
   * fu740 CPU 频率 1.2Ghz，时钟中断频率 1Mhz
   * 关中断
